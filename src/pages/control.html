@@ -6,26 +6,43 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Control</title>
   </head>
-  <body scroll="no" style="overflow: hidden;">
+  <body scroll="no" style="overflow: hidden;" class="bg-gray-800 text-white">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
 html, body {
     overscroll-behavior: none;
 }
-  </style>
+</style>
     <main>
-        <h1>Control</h1>  
-        <div style="position: relative; width: 100px; height: 100px; background-color: red;" id="touch_pad">
-        <div style="position:absolute; left: 40px; top: 40px; width: 20px; height: 20px; background-color: blue;" id="pointer"></div>
+        <div class="w-full h-full p-2">
+        <h1 class="text-3xl bold">Control</h1>  
+        <div class="relative bg-purple-300 w-full max-w-100 min-w-10 aspect-square p-5" id="touch_pad">
+        <div style="position:absolute; left: 40px; top: 40px; width: 20px; height: 20px;" class="bg-purple-600" id="pointer"></div>
         </div>
-        <button id="click">Click</button>
-        <button id="fullscreen">Toggle fullscreen</button>
+        <button id="click" class = "bg-gray-500 border-2 m-1 p-1">Click</button>
+        <button id="fullscreen" class = "bg-gray-500 border-2 m-1 p-1">Fullscreen</button>
+        <button id="keyboard_button" class = "bg-gray-500 border-2 m-1 p-1">Keyboard</button>
+
+        <input style="opacity:0;" type="text" id="keyboard">
+        </div>
         <script>
           var touch_pad = document.getElementById("touch_pad");
           var pointer = document.getElementById("pointer");
           var click_button = document.getElementById("click");
+          var keyboard_focus = document.getElementById("keyboard")
+          var keyboard_button= document.getElementById("keyboard_button")
           var fullscreen_button = document.getElementById("fullscreen");
-
-          const socket = new WebSocket("/ws");
+            var touch_pad_rect = touch_pad.getBoundingClientRect();
+            pointer.style.left = touch_pad_rect.width/2-10+"px";
+            pointer.style.top = touch_pad_rect.height/2-10+"px";
+          var socket = null;
+          var focused = false;
+          try {
+          
+          socket = new WebSocket("/ws");
+          } catch(e) {
+            console.log(e)
+          }
 
           touch_pad.addEventListener("touchstart", function (e) {
             var touch_pad_rect = touch_pad.getBoundingClientRect();
@@ -52,8 +69,9 @@ html, body {
           })
           touch_pad.addEventListener("touchend", function(e) {
             console.log("touchend");
-            pointer.style.left = "40px";
-            pointer.style.top = "40px";
+            var touch_pad_rect = touch_pad.getBoundingClientRect();
+            pointer.style.left = touch_pad_rect.width/2-10+"px";
+            pointer.style.top = touch_pad_rect.height/2-10+"px";
 
             let message = {
               control_type: "move",
@@ -67,8 +85,9 @@ html, body {
           })
           touch_pad.addEventListener("touchcancel", function(e) {
             console.log("touchcancel");
-            pointer.style.left = "40px";
-            pointer.style.top = "40px";
+            var touch_pad_rect = touch_pad.getBoundingClientRect();
+            pointer.style.left = touch_pad_rect.width/2-10+"px";
+            pointer.style.top = touch_pad_rect.height/2-10+"px";
             
             let message = {
               control_type: "move",
@@ -127,6 +146,28 @@ html, body {
 
             socket.send(JSON.stringify(message));
 
+          })
+
+          keyboard_button.addEventListener("click", function(e) {
+            focus = !focus;
+            if (focus) {
+              keyboard_focus.focus()
+            } else {
+              keyboard_focus.blur()
+            }
+          })
+
+          document.addEventListener("keydown", function(e) {
+            let message = {
+              control_type: "keyboard",
+              password: "{{password}}",
+              movex: 0,
+              movey: 0,
+              key: e.code,
+            }
+
+            socket.send(JSON.stringify(message));
+            
           })
         </script>
     </main>

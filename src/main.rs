@@ -77,6 +77,7 @@ async fn handle_control_socket(mut socket: WebSocket) {
                         device.click(KEY_F).unwrap();
                         device.release(KEY_LEFTMETA).unwrap();
                     }
+                    "keyboard" => (),
                     _ => break,
                 },
                 Err(RecvTimeoutError::Disconnected) => break,
