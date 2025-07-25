@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Control</title>
+  </head>
+  <body scroll="no" style="overflow: hidden;">
+  <style>
+html, body {
+    overscroll-behavior: none;
+}
+  </style>
+    <main>
+        <h1>Control</h1>  
+        <div style="position: relative; width: 100px; height: 100px; background-color: red;" id="touch_pad">
+        <div style="position:absolute; left: 40px; top: 40px; width: 20px; height: 20px; background-color: blue;" id="pointer"></div>
+        </div>
+        <button id="click">Click</button>
+        <button id="fullscreen">Toggle fullscreen</button>
+        <script>
+          var touch_pad = document.getElementById("touch_pad");
+          var pointer = document.getElementById("pointer");
+          var click_button = document.getElementById("click");
+          var fullscreen_button = document.getElementById("fullscreen");
+
+          const socket = new WebSocket("/ws");
+
+          touch_pad.addEventListener("touchstart", function (e) {
+            var touch_pad_rect = touch_pad.getBoundingClientRect();
+            var touch = e.touches[0]
+            var y = (touch.clientY - touch_pad_rect.top)/touch_pad_rect.height - 0.5;
+            var x = (touch.clientX - touch_pad_rect.left)/touch_pad_rect.width - 0.5;
+            console.log("start", x, y);
+            x = Math.max(Math.min(x,0.5),-0.5)
+            y = Math.max(Math.min(y,0.5),-0.5)
+            console.log("move: ", x, y);
+            pointer.style.left = touch_pad_rect.width*(x+0.5)-10+"px";
+            pointer.style.top = touch_pad_rect.height*(y+0.5)-10+"px";
+
+            let message = {
+
+              control_type: "move",
+              password: "{{password}}",
+              movex: x,
+              movey: y,
+              key: "",
+            }
+            
+            socket.send(JSON.stringify(message));
+          })
+          touch_pad.addEventListener("touchend", function(e) {
+            console.log("touchend");
+            pointer.style.left = "40px";
+            pointer.style.top = "40px";
+
+            let message = {
+              control_type: "move",
+              password: "{{password}}",
+              movex: 0.,
+              movey: 0.,
+              key: "",
+            }
+            
+            socket.send(JSON.stringify(message));
+          })
+          touch_pad.addEventListener("touchcancel", function(e) {
+            console.log("touchcancel");
+            pointer.style.left = "40px";
+            pointer.style.top = "40px";
+            
+            let message = {
+              control_type: "move",
+              password: "{{password}}",
+              movex: 0.,
+              movey: 0.,
+              key: "",
+            }
+            
+            socket.send(JSON.stringify(message));
+          })
+          touch_pad.addEventListener("touchmove", function(e) {
+            var touch_pad_rect = touch_pad.getBoundingClientRect();
+            var touch = e.touches[0]
+            var y = (touch.clientY - touch_pad_rect.top)/touch_pad_rect.height - 0.5;
+            var x = (touch.clientX - touch_pad_rect.left)/touch_pad_rect.width - 0.5;
+            x = Math.max(Math.min(x,0.5),-0.5)
+            y = Math.max(Math.min(y,0.5),-0.5)
+            console.log("move: ", x, y);
+            pointer.style.left = touch_pad_rect.width*(x+0.5)-10+"px";
+            pointer.style.top = touch_pad_rect.height*(y+0.5)-10+"px";
+
+            let message = {
+              control_type: "move",
+              password: "{{password}}",
+              movex: x,
+              movey: y,
+              key: "",
+            }
+            
+            socket.send(JSON.stringify(message));
+          })
+
+          click_button.addEventListener("click", function(e) {
+            
+            let message = {
+              control_type: "click",
+              password: "{{password}}",
+              movex: 0,
+              movey: 0,
+              key: "",
+            }
+
+            socket.send(JSON.stringify(message));
+
+          })
+          fullscreen_button.addEventListener("click", function(e) {
+            
+            let message = {
+              control_type: "fullscreen",
+              password: "{{password}}",
+              movex: 0,
+              movey: 0,
+              key: "",
+            }
+
+            socket.send(JSON.stringify(message));
+
+          })
+        </script>
+    </main>
+  </body>
+</html>
