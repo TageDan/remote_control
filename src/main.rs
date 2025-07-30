@@ -1,3 +1,4 @@
+use debug_print::debug_println;
 use mouse_keyboard_input::VirtualDevice;
 use mouse_keyboard_input::key_codes::*;
 use serde::Deserialize;
@@ -94,7 +95,7 @@ async fn handle_control_socket(mut socket: WebSocket) {
             if let Ok(message) = serde_json::from_str(msg.to_text().unwrap()) {
                 message
             } else {
-                println!("failed to deserialize!");
+                debug_println!("failed to deserialize!");
                 return;
             };
 
@@ -102,7 +103,7 @@ async fn handle_control_socket(mut socket: WebSocket) {
             return;
         }
 
-        println!("{control_message:?}");
+        debug_println!("{control_message:?}");
         sender.send(control_message).unwrap();
     }
 }
@@ -186,12 +187,12 @@ fn handle_key(key: String, device: &mut VirtualDevice) {
         " " => (KEY_SPACE, false),
         "." => (KEY_DOT, false),
         key => {
-            println!("unknown key ({key})");
+            debug_println!("unknown key ({key})");
             return;
         }
     };
 
-    println!("pressing_btn: {btn:?}");
+    debug_println!("pressing_btn: {btn:?}");
 
     if shift {
         device.press(KEY_LEFTSHIFT);
